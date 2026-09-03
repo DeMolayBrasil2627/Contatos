@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordem em Progresso | Gestão 2026/2027</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#050f26',      // Fundo escuro profundo
+                            gold: '#c9a13b',      // Dourado maçônico
+                            'gold-bright': '#e6c66b',
+                            red: '#dc2626',       // Vermelho
+                            'navy-card': 'rgba(18, 42, 99, 0.4)' // Vidro azulado
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Cormorant Garamond', 'serif'],
+                        mono: ['IBM Plex Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=IBM+Plex+Mono:wght@500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body {
+            background-color: #050f26; /* Navy Deep */
+            color: #f3ead6; /* Cream */
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        h1, .font-serif {
+            font-family: 'Cormorant Garamond', serif;
+        }
+        .font-mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* Container do Three.js */
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        /* Estilização dos Cards (Glassmorphism + Laurel Border) */
+        .glass-card {
+            background: rgba(18, 42, 99, 0.4); /* Navy Card */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(201, 161, 59, 0.16); /* Gold border */
+            position: relative;
+        }
+        
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #c9a13b, #dc2626); /* Dourado para Vermelho */
+            opacity: 0.7;
+            border-radius: 2px 0 0 2px;
+        }
+
+        /* Controles Sticky (Glassmorphism) */
+        #controls {
+            background: rgba(5, 15, 38, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(201, 161, 59, 0.22);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #050f26; }
+        ::-webkit-scrollbar-thumb { background: #1a337a; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c9a13b; }
+
+        /* Dropdown custom */
+        .group-panel {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 280px;
+            max-width: 360px;
+            background: rgba(18, 42, 99, 0.95);
+            border: 1px solid rgba(201, 161, 59, 0.32);
+            border-radius: 12px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+            padding: 8px;
+            z-index: 20;
+            max-height: 360px;
+            overflow-y:auto;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-gold selection:text-brand-dark overflow-x-hidden">
+
+    <div id="canvas-container"></div>
+
+    <header class="relative min-h-[72vh] flex flex-col items-center justify-center text-center px-4 pt-12 pb-8">
+        <div class="hero-content z-10 flex flex-col items-center max-w-5xl">
+            <div class="mb-6 flex items-center justify-center rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.55)]">
+                <img src="EMBLEMA_-_ORDEM_EM_PROGRESSO.webp" alt="Emblema Ordem em Progresso" class="w-28 h-28 md:w-36 md:h-36 object-contain drop-shadow-[0_0_18px_rgba(201,161,59,0.45)]">
+            </div>
+
+            <p class="font-mono text-brand-gold text-[10px] md:text-xs tracking-[0.24em] uppercase mb-3">DEMolay Brasil • Gestão 2026/2027</p>
+            <h1 class="text-5xl md:text-7xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-400 leading-none">
+                Gabinete Nacional
+            </h1>
+            <p class="font-serif italic text-xl md:text-2xl text-brand-gold mb-8">
+                Ordem em Progresso
+            </p>
+            <p class="font-serif text-base md:text-xl text-brand-gold/90 mb-6">
+                Diretório de contatos oficiais
+            </p>
+
+            <a href="#directory" class="explore-btn flex items-center justify-center gap-2 bg-transparent border border-brand-gold/50 text-brand-gold px-4 py-2 rounded-full font-medium text-sm hover:bg-brand-gold hover:text-brand-dark transition-all duration-300 shadow-[0_0_18px_rgba(201,161,59,0.15)]">
+                <i class="ph-bold ph-arrow-down text-base"></i>
+            </a>
+        </div>
+
+        <div class="absolute bottom-0 left-0 w-full h-28 bg-gradient-to-t from-brand-dark to-transparent"></div>
+    </header>
+
+    <div id="controls" class="sticky top-0 z-50 py-4 px-4 shadow-xl">
+        <div class="container mx-auto max-w-[1080px] flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div class="search-wrap relative w-full sm:max-w-md">
+                <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-brand-gold text-lg"></i>
+                <input type="text" id="search" placeholder="Busque por Nome, Cargo ou UF..." 
+                       class="w-full pl-12 pr-4 py-3 bg-white/5 border border-brand-gold/30 rounded-full text-white placeholder:text-brand-gold/70 outline-none focus:border-brand-gold transition">
+
+                <div id="filter-panel" class="group-panel hidden">
+                    <div class="mb-2 px-2 pb-2 border-b border-brand-gold/20">
+                        <p class="font-mono text-[10px] uppercase tracking-[0.22em] text-brand-gold/80">Filtrar por setor</p>
+                    </div>
+                    <div id="filter-options" class="space-y-1"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main id="directory" class="relative z-10 container mx-auto px-4 py-16 max-w-[1080px]">
+        <div id="directory-container" class="space-y-16">
+            <div id="loader" class="text-center py-20 text-brand-gold font-serif italic text-2xl">Carregando gabinete...</div>
+        </div>
+    </main>
+
+    <footer class="border-t border-brand-gold/20 bg-black/20 py-12 text-center">
+        <div class="container mx-auto px-4 max-w-[1080px]">
+            <p class="font-mono text-[11px] uppercase tracking-wider text-brand-gold">Desenvolvido para a Gestão "Ordem em Progresso"</p>
+            <p class="font-mono text-[10px] text-brand-gold/70 mt-2">© 2026/2027 Gabinete Nacional do DeMolay Brasil</p>
+        </div>
+    </footer>
+
+    <script id="gn-data" type="application/json">
+        [
+            [
+  {
+    "sheet": "MCNs",
+    "label": "Mestres Conselheiros Nacionais",
+    "group": "MCNs",
+    "entries": [
+      { "nome": "WIDNEY GONÇALVES GOMES", "cargo": "MCN", "uf": "BA", "telefone": "77 99802-6141", "wa": "5577998026141" },
+      { "nome": "HUGO PIRES", "cargo": "MCNA", "uf": "MG", "telefone": "31 98976-9774", "wa": "5531989769774" }
+    ]
+  },
+  {
+    "sheet": "Secretaria-Geral",
+    "label": "Secretaria-Geral",
+    "group": "Secretarias",
+    "entries": [
+      { "nome": "JUAN LUCA DUTRA DA SILVA", "cargo": "SECRETÁRIO", "uf": "MS", "telefone": "67 98403-8066", "wa": "5567984038066" },
+      { "nome": "BERNARDO BISPO COSTA", "cargo": "ASSESSOR", "uf": "BA", "telefone": "75 98276-2399", "wa": "5575982762399" },
+      { "nome": "EDUARDO SENA DA SILVA SANTOS", "cargo": "ASSESSOR", "uf": "BA", "telefone": "73 99905-7203", "wa": "5573999057203" },
+      { "nome": "PIETRO HENRIQUE GARCIA CAMPOS", "cargo": "ASSESSOR", "uf": "MT", "telefone": "66 99988-7253", "wa": "5566999887253" }
+    ]
+  },
+  {
+    "sheet": "Secretaria de Projetos",
+    "label": "Secretaria de Projetos",
+    "group": "Secretarias",
+    "entries": [
+      { "nome": "LUIZ EDUARDO SOUZA ARAÚJO", "cargo": "SECRETÁRIO", "uf": "AM", "telefone": "92 98436-6753", "wa": "5592984366753" },
+      { "nome": "CAIO DOS SANTOS GUIMARÃES", "cargo": "ASSESSOR", "uf": "BA", "telefone": "77 99979-4937", "wa": "5577999794937" },
+      { "nome": "ERICK DE OLIVEIRA MOURA", "cargo": "ASSESSOR", "uf": "CE", "telefone": "88 99708-0342", "wa": "5588997080342" },
+      { "nome": "JOÃO PEDRO FRANCO LOPES", "cargo": "ASSESSOR", "uf": "MS", "telefone": "67 99337-5183", "wa": "5567993375183" }
+    ]
+  },
+  {
+    "sheet": "Secretaria de Comunicações",
+    "label": "Secretaria de Comunicações",
+    "group": "Secretarias",
+    "entries": [
+      { "nome": "TASSO OLIVEIRA DIAS", "cargo": "SECRETÁRIO", "uf": "BA", "telefone": "77 98118-8013", "wa": "5577981188013" },
+      { "nome": "ELDER GOMES LUCAS PEREIRA", "cargo": "ASSESSOR", "uf": "MG", "telefone": "37 93300-5571", "wa": "5537933005571" },
+      { "nome": "IGOR KAUEL LIMA DE CONCEIÇÃO", "cargo": "ASSESSOR", "uf": "SE", "telefone": "79 99903-4140", "wa": "5579999034140" },
+      { "nome": "JOÃO FRANCISCO MARIANO CENERELLI", "cargo": "ASSESSOR", "uf": "RS", "telefone": "51 99010-3313", "wa": "5551990103313" },
+      { "nome": "RAFAEL MEDRADO BARBOSA", "cargo": "ASSESSOR", "uf": "BA", "telefone": "77 98854-0549", "wa": "5577988540549" }
+    ]
+  },
+  {
+    "sheet": "Secretaria de Organizações Afiliadas",
+    "label": "Secretaria de Organizações Afiliadas",
+    "group": "Secretarias",
+    "entries": [
+      { "nome": "JOÃO VICTOR BARBOSA MAZIERO", "cargo": "SECRETÁRIO", "uf": "PR", "telefone": "41 98862-6399", "wa": "5541988626399" },
+      { "nome": "NILTON APARECIDO BLAZ", "cargo": "ASSESSOR", "uf": "GO", "telefone": "62 99843-6328", "wa": "5562998436328" },
+      { "nome": "ARTHUR VINÍCIUS COSTA BARRETO", "cargo": "ASSESSOR", "uf": "SE", "telefone": "79 98875-9675", "wa": "5579988759675" },
+      { "nome": "GABRIEL MARONEZE RAMOS", "cargo": "ASSESSOR", "uf": "RS", "telefone": "55 98242-4163", "wa": "5555982424163" },
+      { "nome": "MARIO HENRIQUE DA SILVA ARAÚJO", "cargo": "ASSESSOR", "uf": "CE", "telefone": "88 99688-0108", "wa": "5588996880108" },
+      { "nome": "RAMON ALMEIDA ARAÚJO", "cargo": "ASSESSOR", "uf": "BA", "telefone": "77 99103-5522", "wa": "5577991035522" }
+    ]
+  },
+  {
+    "sheet": "Secretaria de Ações Sociais",
+    "label": "Secretaria de Ações Sociais",
+    "group": "Secretarias",
+    "entries": [
+      { "nome": "JÚLIO BORGES LOPES", "cargo": "SECRETÁRIO", "uf": "SP", "telefone": "19 97122-9795", "wa": "5519971229795" },
+      { "nome": "KERLON SILVA XAVIER", "cargo": "ASSESSOR", "uf": "MG", "telefone": "38 99803-9675", "wa": "5538998039675" },
+      { "nome": "LEANDRO PINHEIRO DOTTES", "cargo": "ASSESSOR", "uf": "RS", "telefone": "51 99855-5182", "wa": "5551998555182" },
+      { "nome": "SAMIR DOS SANTOS ROSA", "cargo": "ASSESSOR", "uf": "BA", "telefone": "71 99938-5021", "wa": "5571999385021" },
+      { "nome": "THIAGO FERREIRA DE GODOI", "cargo": "ASSESSOR", "uf": "SP", "telefone": "11 96600-8693", "wa": "5511966008693" },
+      { "nome": "YAN PABLO BRITO DUARTE TEIXEIRA", "cargo": "ASSESSOR", "uf": "CE", "telefone": "88 98857-0889", "wa": "5588988570889" }
+    ]
+  },
+  {
+    "sheet": "Secretaria de Ritualística",
+    "label": "Secretaria de Ritualística",
+    "group": "Secretarias",
+    "entries": [
+      { "nome": "RENAN HITOSHI FUJII CONTATO", "cargo": "SECRETÁRIO", "uf": "MT", "telefone": "65 99686-2581", "wa": "5565996862581" },
+      { "nome": "ENZO CRAVEIRO FERRAZ MIGUEL", "cargo": "ASSESSOR", "uf": "GO", "telefone": "64 92000-0804", "wa": "5564920000804" },
+      { "nome": "GUILHERME ASSIS CARVALHO", "cargo": "ASSESSOR", "uf": "BA", "telefone": "73 98868-5188", "wa": "5573988685188" },
+      { "nome": "IURY ÍCARO DE ASSIS CRISTINO", "cargo": "ASSESSOR", "uf": "PB", "telefone": "83 99843-9326", "wa": "5583998439326" },
+      { "nome": "MARCEL SACRAMENTO SOBRAL", "cargo": "ASSESSOR", "uf": "SE", "telefone": "79 99692-9775", "wa": "5579996929775" },
+      { "nome": "MATHEUS CASSIANO FIDELES", "cargo": "ASSESSOR", "uf": "GO", "telefone": "64 98408-8584", "wa": "5564984088584" },
+      { "nome": "MATHEUS CUNHA TORRES BRASIL ALCÂNTARA", "cargo": "ASSESSOR", "uf": "BA", "telefone": "75 99288-1426", "wa": "5575992881426" },
+      { "nome": "PEDRO DE CICO BATAGLIA CORNICELLI", "cargo": "ASSESSOR", "uf": "SP", "telefone": "16 99411-8737", "wa": "5516994118737" }
+    ]
+  },
+  {
+    "sheet": "Secretaria da Ordem dos Escudeiros",
+    "label": "Secretaria da Ordem dos Escudeiros",
+    "group": "Secretarias",
+    "entries": [
+      { "nome": "FERNANDO PATIRI", "cargo": "SECRETÁRIO", "uf": "SP", "telefone": "11 99222-3831", "wa": "5511992223831" },
+      { "nome": "ENRICO MILIATTI TAVARES", "cargo": "ASSESSOR", "uf": "SP", "telefone": "19 99611-9809", "wa": "5519996119809" },
+      { "nome": "ISAC ÁVILA TOSTA", "cargo": "ASSESSOR", "uf": "MS", "telefone": "67 99810-6741", "wa": "5567998106741" },
+      { "nome": "JOÃO EDUARDO SANTANA BOAVENTURA", "cargo": "ASSESSOR", "uf": "BA", "telefone": "73 99801-0080", "wa": "5573998010080" },
+      { "nome": "PEDRO HENRIQUE MONTERISI DE LIMA", "cargo": "ASSESSOR", "uf": "MS", "telefone": "67 99861-5792", "wa": "5567998615792" }
+    ]
+  },
+  {
+    "sheet": "Secretaria da Ordem da Cavalaria",
+    "label": "Secretaria da Ordem da Cavalaria",
+    "group": "Secretarias",
+    "entries": [
+      { "nome": "VICTOR MARIANO MAGALHÃES DE BARROS", "cargo": "SECRETÁRIO", "uf": "PE", "telefone": "87 98166-2767", "wa": "5587981662767" },
+      { "nome": "GIOVANNI SANTOS PIRES", "cargo": "ASSESSOR", "uf": "SP", "telefone": "11 98823-3077", "wa": "5511988233077" },
+      { "nome": "IURI BORGES MASTROROCCO", "cargo": "ASSESSOR", "uf": "ES", "telefone": "73 99862-1286", "wa": "5573998621286" },
+      { "nome": "PAULO FERNANDO VASCONCELOS SALES", "cargo": "ASSESSOR", "uf": "BA", "telefone": "73 99804-0717", "wa": "5573998040717" },
+      { "nome": "RICHARD DOS SANTOS SOUZA", "cargo": "ASSESSOR", "uf": "PE", "telefone": "87 99207-8917", "wa": "5587992078917" },
+      { "nome": "YAN RICARD PEROTI BENTES COSTA", "cargo": "ASSESSOR", "uf": "PA", "telefone": "91 98638-1098", "wa": "5591986381098" }
+    ]
+  },
+  {
+    "sheet": "Macrorregionais",
+    "label": "Macrorregionais",
+    "group": "Macrorregionais",
+    "entries": [
+      { "nome": "GEORGE CAUÃ COELHO OLIVEIRA", "cargo": "SECRETÁRIO", "uf": "NORTE/RR", "telefone": "95 99113-0408", "wa": "5595991130408" },
+      { "nome": "ADSON LIMA DIAS", "cargo": "SECRETÁRIO", "uf": "NORDESTE/CE", "telefone": "88 99691-0136", "wa": "5588996910136" },
+      { "nome": "GABRIEL ALE FAVALEÇA", "cargo": "SECRETÁRIO", "uf": "SUDESTE/SP", "telefone": "17 99622-0111", "wa": "5517996220111" },
+      { "nome": "JOÃO VICTOR BARBOSA MAZIERO", "cargo": "SECRETÁRIO", "uf": "SUL/PR", "telefone": "41 98862-6399", "wa": "5541988626399" },
+      { "nome": "JOÃO CARLOS PERES GONÇALVES", "cargo": "SECRETÁRIO", "uf": "CENTRO-OESTE/GO", "telefone": "62 99550-7707", "wa": "5562995507707" }
+    ]
+  },
+  {
+    "sheet": "CNIE - Capítulos",
+    "label": "CNIE — Capítulos",
+    "group": "Coordenação CNIEs",
+    "entries": [
+      { "nome": "JOÃO CARLOS FERREIRA VIEIRA", "cargo": "COORD.-GERAL", "uf": "PA", "telefone": "91 99153-5868", "wa": "5591991535868" },
+      { "nome": "ALEJANDRO DANIEL RODRIGUES ALVAREZ", "cargo": "COORDENADOR", "uf": "GO", "telefone": "64 99216-3791", "wa": "5564992163791" },
+      { "nome": "ANTÔNIO GABRIEL PINTO DA SILVA", "cargo": "COORDENADOR", "uf": "RJ", "telefone": "21 97073-3598", "wa": "5521970733598" },
+      { "nome": "CAIO HENRIQUE DA SILVA PEREIRA", "cargo": "COORDENADOR", "uf": "BA", "telefone": "62 99965-5587", "wa": "5562999655587" },
+      { "nome": "CAUÃ KEIJI SATO", "cargo": "COORDENADOR", "uf": "PR", "telefone": "44 99992-3677", "wa": "5544999923677" },
+      { "nome": "EDUARDO HENRIQUE FORTE CAMPOS", "cargo": "COORDENADOR", "uf": "AC", "telefone": "68 99925-8899", "wa": "5568999258899" },
+      { "nome": "EDUARDO TOMAZELLI", "cargo": "COORDENADOR", "uf": "SC", "telefone": "49 98834-4747", "wa": "5549988344747" },
+      { "nome": "ENZO HARIEL FERREIRA GASPAR", "cargo": "COORDENADOR", "uf": "CE", "telefone": "88 99799-7491", "wa": "5588997997491" },
+      { "nome": "FERNANDO ALVARENGA CAETANO", "cargo": "COORDENADOR", "uf": "ES", "telefone": "27 99883-7556", "wa": "5527998837556" },
+      { "nome": "GUILHERME MARINO VACCARI GARCIA", "cargo": "COORDENADOR", "uf": "MT", "telefone": "65 99919-9006", "wa": "5565999199006" },
+      { "nome": "HEITOR RODOLPHO DE LUCCA", "cargo": "COORDENADOR", "uf": "SP", "telefone": "17 99638-0909", "wa": "5517996380909" },
+      { "nome": "HUGO SILVA FIGUEIRA", "cargo": "COORDENADOR", "uf": "MG", "telefone": "34 99683-5120", "wa": "5534996835120" },
+      { "nome": "ÍCARO GUEDES DE MEDEIROS", "cargo": "COORDENADOR", "uf": "RN", "telefone": "84 99924-7697", "wa": "5584999247697" },
+      { "nome": "JOÃO GABRIEL CORTES PUREZA", "cargo": "COORDENADOR", "uf": "PA", "telefone": "91 99186-4359", "wa": "5591991864359" },
+      { "nome": "JOÃO GUSTAVO KHOURI FERRAZ LARANJEIRA", "cargo": "COORDENADOR", "uf": "BA", "telefone": "77 99126-9251", "wa": "5577991269251" },
+      { "nome": "JOÃO VICTOR DA SILVA PERES", "cargo": "COORDENADOR", "uf": "DF", "telefone": "61 99217-3382", "wa": "5561992173382" },
+      { "nome": "MATEUS VARJÃO DA SILVA", "cargo": "COORDENADOR", "uf": "BA", "telefone": "75 99820-7732", "wa": "5575998207732" },
+      { "nome": "OTÁVIO DE LUCCA BORTOLOSSI", "cargo": "COORDENADOR", "uf": "PR", "telefone": "44 99144-4142", "wa": "5544991444142" },
+      { "nome": "RAFAEL SAMPAIO MARQUES DE SOUZA", "cargo": "COORDENADOR", "uf": "PA", "telefone": "94 98137-0718", "wa": "5594981370718" },
+      { "nome": "VITOR HENRIQUE VIEIRA COSTA", "cargo": "COORDENADOR", "uf": "SC", "telefone": "48 99627-9349", "wa": "5548996279349" }
+    ]
+  },
+  {
+    "sheet": "CNIE - Castelos",
+    "label": "CNIE — Castelos",
+    "group": "Coordenação CNIEs",
+    "entries": [
+      { "nome": "EDUARDO CARLOS BRAGA DE SOUZA FILHO", "cargo": "COORD.-GERAL", "uf": "BA", "telefone": "74 99944-1191", "wa": "5574999441191" },
+      { "nome": "GABRIEL NEGRI DA COSTA", "cargo": "COORDENADOR", "uf": "ES", "telefone": "27 99237-1914", "wa": "5527992371914" },
+      { "nome": "GUILHERME HENRIQUE CRUZ MASCARENHAS", "cargo": "COORDENADOR", "uf": "MG", "telefone": "34 99710-4553", "wa": "5534997104553" },
+      { "nome": "IGOR GUIMARÃES DE LIMA", "cargo": "COORDENADOR", "uf": "GO", "telefone": "62 99177-5566", "wa": "5562991775566" },
+      { "nome": "JOÃO MANOEL VIANA VASCONCELOS", "cargo": "COORDENADOR", "uf": "CE", "telefone": "88 98149-5593", "wa": "5588981495593" },
+      { "nome": "PYÊTRO SILVA SANTANA", "cargo": "COORDENADOR", "uf": "CE", "telefone": "88 99717-7363", "wa": "5588997177363" },
+      { "nome": "ROBERTH KENNEDY PIRES PACHECO", "cargo": "COORDENADOR", "uf": "BA", "telefone": "75 99991-1397", "wa": "5575999911397" },
+      { "nome": "VITOR LEAL ROCHA", "cargo": "COORDENADOR", "uf": "MG", "telefone": "33 99106-3467", "wa": "5533991063467" }
+    ]
+  },
+  {
+    "sheet": "CNIE - Priorados",
+    "label": "CNIE — Priorados",
+    "group": "Coordenação CNIEs",
+    "entries": [
+      { "nome": "NICOLAS CÉSAR FERREIRA CAMPOS DE SOUSA", "cargo": "COORD.-GERAL", "uf": "PB", "telefone": "83 99121-5132", "wa": "5583991215132" },
+      { "nome": "ARTHUR ALVARENGA MOREIRA VAZ", "cargo": "COORDENADOR", "uf": "MG", "telefone": "37 99952-8121", "wa": "5537999528121" },
+      { "nome": "ELDONSO NETO RIBEIRO LIRA", "cargo": "COORDENADOR", "uf": "TO", "telefone": "63 98103-8575", "wa": "5563981038575" },
+      { "nome": "EMANUEL CARVALHO DE AMARAL", "cargo": "COORDENADOR", "uf": "PE", "telefone": "87 99141-9108", "wa": "5587991419108" },
+      { "nome": "ENZO BANDEIRA RUAS", "cargo": "COORDENADOR", "uf": "GO", "telefone": "64 98442-5258", "wa": "5564984425258" },
+      { "nome": "GABRIEL DIÓGENES DE ARAÚJO BARROS", "cargo": "COORDENADOR", "uf": "PA", "telefone": "94 98412-8937", "wa": "5594984128937" },
+      { "nome": "SALOMÃO FREITAS TORRES DE MELO", "cargo": "COORDENADOR", "uf": "CE", "telefone": "88 98127-1268", "wa": "5588981271268" },
+      { "nome": "THIAGO GOUVEIA DOCA", "cargo": "COORDENADOR", "uf": "DF", "telefone": "61 99630-9055", "wa": "5561996309055" }
+    ]
+  },
+  {
+    "sheet": "CNIE - Regiões",
+    "label": "CNIE — Regiões",
+    "group": "Coordenação CNIEs",
+    "entries": [
+      { "nome": "HEITOR TONIN BERNARDO", "cargo": "COORD.-GERAL", "uf": "SP", "telefone": "17 99641-3838", "wa": "5517996413838" },
+      { "nome": "CAUAN DE OLIVEIRA SOUSA", "cargo": "COORDENADOR", "uf": "MG", "telefone": "73 99101-7594", "wa": "5573991017594" },
+      { "nome": "FRANCISCO MALISCHESKI SCHAURICH", "cargo": "COORDENADOR", "uf": "TO", "telefone": "48 99153-0132", "wa": "5548991530132" },
+      { "nome": "JOÃO PEDRO RAMOS", "cargo": "COORDENADOR", "uf": "PE", "telefone": "47 98827-7852", "wa": "5547988277852" },
+      { "nome": "LUCIANO ANDRADE PARAIBA JÚNIOR", "cargo": "COORDENADOR", "uf": "GO", "telefone": "34 99881-8824", "wa": "5534998818824" },
+      { "nome": "YAN SOUSA QUEIROZ LINS", "cargo": "COORDENADOR", "uf": "PA", "telefone": "94 99300-1829", "wa": "5594993001829" }
+    ]
+  },
+  {
+    "sheet": "CNIE - Gabinetes",
+    "label": "CNIE — Gabinetes",
+    "group": "Coordenação CNIEs",
+    "entries": [
+      { "nome": "YURI ZIDANE MELO GRANJEIRO", "cargo": "COORD.-GERAL", "uf": "RN", "telefone": "84 99848-7787", "wa": "5584998487787" },
+      { "nome": "AUGUSTO CÉSAR LOPES MEDEIROS", "cargo": "COORDENADOR", "uf": "RN", "telefone": "84 99653-2211", "wa": "5584996532211" },
+      { "nome": "CAIO DEFANTE CORADI", "cargo": "COORDENADOR", "uf": "MA", "telefone": "99 98125-4157", "wa": "5599981254157" },
+      { "nome": "ISAAC DE OLIVEIRA RODRIGUES", "cargo": "COORDENADOR", "uf": "AM", "telefone": "97 98431-7435", "wa": "5597984317435" },
+      { "nome": "LUCAS GARCIA SIMONETTI PIRES", "cargo": "COORDENADOR", "uf": "PR", "telefone": "44 98461-5145", "wa": "5544984615145" },
+      { "nome": "OSCAR FELIPE DELFINO CORDEIRO", "cargo": "COORDENADOR", "uf": "GO", "telefone": "64 99977-1691", "wa": "5564999771691" }
+    ]
+  },
+  {
+    "sheet": "CRN - Capítulos",
+    "label": "CRN — Capítulos",
+    "group": "Coordenação CRNs",
+    "entries": [
+      { "nome": "SAULO JOSÉ STOREL DE MOURA ABREU", "cargo": "COORD.-GERAL", "uf": "PI", "telefone": "86 99815-5687", "wa": "5586998155687" },
+      { "nome": "ANTÔNIO PACHECO DE ABREU", "cargo": "COORDENADOR", "uf": "PE", "telefone": "87 98110-4772", "wa": "5587981104772" },
+      { "nome": "ARTHUR HENRIQUE PEREIRA GUEDES", "cargo": "COORDENADOR", "uf": "MG", "telefone": "31 99500-8535", "wa": "5531995008535" },
+      { "nome": "DAVI ALVES MOREIRA", "cargo": "COORDENADOR", "uf": "CE", "telefone": "88 99718-5427", "wa": "5588997185427" },
+      { "nome": "EMANUEL ESPÍNDOLA SOARES", "cargo": "COORDENADOR", "uf": "MG", "telefone": "31 99604-2918", "wa": "5531996042918" },
+      { "nome": "GUSTAVO RODRIGUES SUARES", "cargo": "COORDENADOR", "uf": "MT", "telefone": "65 99263-5454", "wa": "5565992635454" },
+      { "nome": "GUSTAVO ROSINI", "cargo": "COORDENADOR", "uf": "PR", "telefone": "43 98866-4820", "wa": "5543988664820" },
+      { "nome": "NELSON MARTINS NETO", "cargo": "COORDENADOR", "uf": "MS", "telefone": "67 99635-0605", "wa": "5567996350605" },
+      { "nome": "NICOLAS JOSÉ SOUZA DELBONI", "cargo": "COORDENADOR", "uf": "ES", "telefone": "27 99758-1052", "wa": "5527997581052" },
+      { "nome": "PEDRO HENRIQUE DE OLIVEIRA MILHOMENS", "cargo": "COORDENADOR", "uf": "RO", "telefone": "69 99205-2736", "wa": "5569992052736" }
+    ]
+  },
+  {
+    "sheet": "CRN - Castelos",
+    "label": "CRN — Castelos",
+    "group": "Coordenação CRNs",
+    "entries": [
+      { "nome": "HENRIQUE PANISSON AGOSTINETO", "cargo": "COORD.-GERAL", "uf": "RS", "telefone": "55 99657-0976", "wa": "5555996570976" },
+      { "nome": "JOÃO EDUARDO IARK CABASSA", "cargo": "COORDENADOR", "uf": "PR", "telefone": "46 98821-3187", "wa": "5546988213187" },
+      { "nome": "JONAS MESSIANO SANTOS PRATA", "cargo": "COORDENADOR", "uf": "SP", "telefone": "16 99337-3785", "wa": "5516993373785" },
+      { "nome": "JOSÉ SABINO PEREIRA DE SOUSA", "cargo": "COORDENADOR", "uf": "AM", "telefone": "92 99171-0253", "wa": "5592991710253" },
+      { "nome": "LEONARDO VIVAS DE SOUSA REIS", "cargo": "COORDENADOR", "uf": "BA", "telefone": "75 99998-2811", "wa": "5575999982811" },
+      { "nome": "LEONE BORGES MAIA", "cargo": "COORDENADOR", "uf": "MT", "telefone": "65 99681-7366", "wa": "5565996817366" },
+      { "nome": "MURILLO HENRIQUE NOGUEIRA DOS SANTOS", "cargo": "COORDENADOR", "uf": "MS", "telefone": "67 98441-5028", "wa": "5567984415028" },
+      { "nome": "PEDRO ARTHUR MOURA SANTOS", "cargo": "COORDENADOR", "uf": "RN", "telefone": "84 98709-6201", "wa": "5584987096201" }
+    ]
+  },
+  {
+    "sheet": "CRN - Priorados",
+    "label": "CRN — Priorados",
+    "group": "Coordenação CRNs",
+    "entries": [
+      { "nome": "PEDRO CARVALHO CAMPOS", "cargo": "COORD.-GERAL", "uf": "RJ", "telefone": "21 99920-3771", "wa": "5521999203771" },
+      { "nome": "BRENO REIS DE OLIVEIRA", "cargo": "COORDENADOR", "uf": "MG", "telefone": "34 99984-5728", "wa": "5534999845728" },
+      { "nome": "EDUARDO BORGES ÁVIL", "cargo": "COORDENADOR", "uf": "MG", "telefone": "34 99717-2604", "wa": "5534997172604" },
+      { "nome": "GUILHERME MATEUS DE SOUZA", "cargo": "COORDENADOR", "uf": "SP", "telefone": "17 99659-6602", "wa": "5517996596602" },
+      { "nome": "JOÃO FELIPE FREITAS MELO", "cargo": "COORDENADOR", "uf": "CE", "telefone": "88 99694-4516", "wa": "5588996944516" },
+      { "nome": "LUAN HENRIQUE VIANA DE BARROS NEVES", "cargo": "COORDENADOR", "uf": "PE", "telefone": "87 99159-2826", "wa": "5587991592826" },
+      { "nome": "PAULO ANDRÉ TRIGUEIRO FERREIRA", "cargo": "COORDENADOR", "uf": "PB", "telefone": "83 99695-3327", "wa": "5583996953327" }
+    ]
+  },
+  {
+    "sheet": "CRN - Regiões",
+    "label": "CRN — Regiões",
+    "group": "Coordenação CRNs",
+    "entries": [
+      { "nome": "MIGUEL MENON FEREGUETTE", "cargo": "COORD.-GERAL", "uf": "ES", "telefone": "27 99810-9400", "wa": "5527998109400" },
+      { "nome": "GUSTAVO SOARES DA SILVA", "cargo": "COORDENADOR", "uf": "MG", "telefone": "38 99840-7974", "wa": "5538998407974" },
+      { "nome": "JOÃO PEDRO NOGUEIRA BARBOSA", "cargo": "COORDENADOR", "uf": "SP", "telefone": "16 98160-9884", "wa": "5516981609884" },
+      { "nome": "JOSÉ RAFAEL LINS NUNES", "cargo": "COORDENADOR", "uf": "PB", "telefone": "83 98910-9656", "wa": "5583989109656" },
+      { "nome": "LUÍS EDUARDO SALES AMORIM", "cargo": "COORDENADOR", "uf": "RN", "telefone": "84 99608-2485", "wa": "5584996082485" },
+      { "nome": "MANOEL PEDRO LIMA DE ALMEIDA E SILVA", "cargo": "COORDENADOR", "uf": "MG", "telefone": "92 99297-8639", "wa": "5592992978639" }
+    ]
+  },
+  {
+    "sheet": "CRN - Gabinetes",
+    "label": "CRN — Gabinetes",
+    "group": "Coordenação CRNs",
+    "entries": [
+      { "nome": "NICOLAS NACIF SALDANHA", "cargo": "COORD.-GERAL", "uf": "MG", "telefone": "32 99810-1584", "wa": "5532998101584" },
+      { "nome": "JOÃO GABRIEL FRANÇA RIBEIRO", "cargo": "COORDENADOR", "uf": "RJ", "telefone": "21 98918-9398", "wa": "5521989189398" },
+      { "nome": "JOAQUIM HERMOE REIS AMORI", "cargo": "COORDENADOR", "uf": "PA", "telefone": "91 98115-5107", "wa": "5591981155107" },
+      { "nome": "JOSÉ RODOLFO HERCEULANO CAPELA", "cargo": "COORDENADOR", "uf": "AL", "telefone": "19 98248-1629", "wa": "5519982481629" },
+      { "nome": "KAUÃ SESTO COUTO", "cargo": "COORDENADOR", "uf": "MG", "telefone": "31 99075-2492", "wa": "5531990752492" },
+      { "nome": "LUCAS THIESEN PRIM CAMPOS", "cargo": "COORDENADOR", "uf": "SC", "telefone": "48 99101-7020", "wa": "5548991017020" }
+    ]
+  },
+  {
+    "sheet": "Caneta de Ouro",
+    "label": "Coordenação da Caneta de Ouro",
+    "group": "Coordenações de Honra",
+    "entries": [
+      { "nome": "PEDRO HENRIQUE BEZERRA LIMA", "cargo": "COORD.-GERAL", "uf": "AL", "telefone": "82 99615-0147", "wa": "5582996150147" },
+      { "nome": "ANDRÉ DE SOUZA POZECZEK", "cargo": "COORDENADOR", "uf": "RS", "telefone": "55 99146-4018", "wa": "5555991464018" },
+      { "nome": "ARTHUR CAMBOIM DE OLIVEIRA CAVALCANTE", "cargo": "COORDENADOR", "uf": "PE", "telefone": "87 98136-4774", "wa": "5587981364774" },
+      { "nome": "BENÍCIO AYRES COSTA DE ALCÂNCARA", "cargo": "COORDENADOR", "uf": "BA", "telefone": "71 99920-1105", "wa": "5571999201105" },
+      { "nome": "BERNARDO ANTONIO POZZI E SILVA", "cargo": "COORDENADOR", "uf": "MS", "telefone": "67 99166-8124", "wa": "5567991668124" },
+      { "nome": "BERNARDO DE CASTRO MONTEIRO FRANCO GOMES", "cargo": "COORDENADOR", "uf": "MG", "telefone": "31 99998-1418", "wa": "5531999981418" },
+      { "nome": "BRUNO RÉSSIO DE OLIVEIRA", "cargo": "COORDENADOR", "uf": "SP", "telefone": "13 97422-4421", "wa": "5513974224421" },
+      { "nome": "DAVI VASCONCELLOS FUMAN", "cargo": "COORDENADOR", "uf": "RS", "telefone": "54 99935-4277", "wa": "5554999354277" },
+      { "nome": "DIEGO TOMAZ BORGES DOS SANTOS", "cargo": "COORDENADOR", "uf": "MS", "telefone": "67 99277-9787", "wa": "5567992779787" },
+      { "nome": "ENZIO GUSTAVO LUZ ARAÚJO", "cargo": "COORDENADOR", "uf": "BA", "telefone": "77 98872-1792", "wa": "5577988721792" },
+      { "nome": "FELYPE TEIXEIRA GOMES", "cargo": "COORDENADOR", "uf": "BA", "telefone": "77 99209-1653", "wa": "5577992091653" },
+      { "nome": "FLÁVIO HENRIQUE DORNELAS DE SOUZA", "cargo": "COORDENADOR", "uf": "DF", "telefone": "61 99194-2721", "wa": "5561991942721" },
+      { "nome": "FRANCISCO LUCAS ALVES MONTEIRO", "cargo": "COORDENADOR", "uf": "CE", "telefone": "88 99805-9634", "wa": "5588998059634" },
+      { "nome": "JOÃO PAULO SOUZA BEZERRA", "cargo": "COORDENADOR", "uf": "BA", "telefone": "75 99222-5003", "wa": "5575992225003" },
+      { "nome": "JOSIMAR DOS SANTOS MEDEIROS", "cargo": "COORDENADOR", "uf": "RN", "telefone": "84 99603-5728", "wa": "5584996035728" },
+      { "nome": "MARCUS VINÍCIUS DE OLIVEIRA CABOATAN", "cargo": "COORDENADOR", "uf": "RJ", "telefone": "21 96427-2534", "wa": "5521964272534" },
+      { "nome": "TIAGO RENAN UCHÔA", "cargo": "COORDENADOR", "uf": "CE", "telefone": "88 99848-4150", "wa": "5588998484150" },
+      { "nome": "TOMÁS MOTA PEREIRA DA SILVA", "cargo": "COORDENADOR", "uf": "PA", "telefone": "91 99191-2902", "wa": "5591991912902" },
+      { "nome": "VITOR HUGO SOARES LAGE", "cargo": "COORDENADOR", "uf": "MG", "telefone": "31 98104-6619", "wa": "5531981046619" }
+    ]
+  },
+  {
+    "sheet": "Protocolista de Ouro",
+    "label": "Coordenação Protocolista de Ouro",
+    "group": "Coordenações de Honra",
+    "entries": [
+      { "nome": "PEDRO HENRIQUE SAMPAIO DE SOUSA", "cargo": "COORD.-GERAL", "uf": "CE", "telefone": "88 99691-9579", "wa": "5588996919579" },
+      { "nome": "ANDRÉ DE SOUZA POZECZEK", "cargo": "COORDENADOR", "uf": "MG", "telefone": "(31) 98738-9542", "wa": "5531987389542" },
+      { "nome": "ARTHUR CAMBOIM DE OLIVEIRA CAVALCANTE", "cargo": "COORDENADOR", "uf": "SP", "telefone": "1 (321) 410-9356", "wa": "13214109356" },
+      { "nome": "BENÍCIO AYRES COSTA DE ALCÂNCARA", "cargo": "COORDENADOR", "uf": "BA", "telefone": "75 99916-2338", "wa": "5575999162338" },
+      { "nome": "BERNARDO ANTONIO POZZI E SILVA", "cargo": "COORDENADOR", "uf": "RN", "telefone": "84 92167-3210", "wa": "5584921673210" },
+      { "nome": "BERNARDO DE CASTRO MONTEIRO FRANCO GOMES", "cargo": "COORDENADOR", "uf": "RR", "telefone": "95 99122-2477", "wa": "5595991222477" },
+      { "nome": "BRUNO RÉSSIO DE OLIVEIRA", "cargo": "COORDENADOR", "uf": "PR", "telefone": "41 99164-7302", "wa": "5541991647302" },
+      { "nome": "DAVI VASCONCELLOS FUMAN", "cargo": "COORDENADOR", "uf": "CE", "telefone": "88 99697-0890", "wa": "5588996970890" }
+    ]
+  },
+  {
+    "sheet": "DNF",
+    "label": "Coordenação do DNF",
+    "group": "Coordenações de Honra",
+    "entries": [
+      { "nome": "ALBERTO JORGE FRANCO VIEIRA NETO", "cargo": "COORD.-GERAL", "uf": "SE", "telefone": "79 99139-2812", "wa": "5579991392812" },
+      { "nome": "ARTHUR PIRES MIRANDA ALENCAR CUNHA", "cargo": "COORDENADOR", "uf": "MG", "telefone": "38 99732-9417", "wa": "5538997329417" },
+      { "nome": "ARTHUR TAVARES CORREA DOS SANTOS", "cargo": "COORDENADOR", "uf": "RJ", "telefone": "2197892-6006", "wa": "5521978926006" },
+      { "nome": "DAVI HOFFMAN MARCHIORO", "cargo": "COORDENADOR", "uf": "SC", "telefone": "48 99614-9111", "wa": "5548996149111" },
+      { "nome": "DAVI SOUSA CHAGAS", "cargo": "COORDENADOR", "uf": "BA", "telefone": "77 98866-9415", "wa": "5577988669415" },
+      { "nome": "GUILHERME TEIXEIRA XAVIER", "cargo": "COORDENADOR", "uf": "GO", "telefone": "62 99256-7656", "wa": "5562992567656" },
+      { "nome": "JOÃO PEDRO PETRY BANTLE", "cargo": "COORDENADOR", "uf": "MT", "telefone": "65 99231-5381", "wa": "5565992315381" },
+      { "nome": "LORENZO MELO CARDOSO", "cargo": "COORDENADOR", "uf": "MG", "telefone": "34 99989-7299", "wa": "5534999897299" },
+      { "nome": "VICTOR MUNIZ", "cargo": "COORDENADOR", "uf": "RJ", "telefone": "22 99754-0519", "wa": "5522997540519" }
+    ]
+  },
+  {
+    "sheet": "Mães de Honra",
+    "label": "Coordenação Clube de Mães de Honra",
+    "group": "Coordenações de Honra",
+    "entries": [
+      { "nome": "RENAN CARDOSO CASIMIRO", "cargo": "COORD.-GERAL", "uf": "AP", "telefone": "96 99167-2977", "wa": "5596991672977" },
+      { "nome": "ALEXANDRE PERES HOUKLEF", "cargo": "COORDENADOR", "uf": "RO", "telefone": "69 99307-0663", "wa": "5569993070663" },
+      { "nome": "DENIS PINATTO DE SOUZA", "cargo": "COORDENADOR", "uf": "SP", "telefone": "17 99724-3830", "wa": "5517997243830" },
+      { "nome": "EMERSON ROBERTO LOZANO FILHO", "cargo": "COORDENADOR", "uf": "MT", "telefone": "66 98422-6339", "wa": "5566984226339" },
+      { "nome": "JOÃO AUGUTO BARROS DINIZ", "cargo": "COORDENADOR", "uf": "RN", "telefone": "84 99436-2002", "wa": "5584994362002" },
+      { "nome": "KAIO COSTA PEREIRA MOREIRA", "cargo": "COORDENADOR", "uf": "MG", "telefone": "38 99958-8609", "wa": "5538999588609" }
+    ]
+  }
+]
+        ]
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. CARREGAR E RENDERIZAR DADOS
+            const rawData = document.getElementById('gn-data').textContent;
+            let cabinetData = [];
+            
+            try {
+                const parsed = JSON.parse(rawData);
+                cabinetData = Array.isArray(parsed) && Array.isArray(parsed[0]) ? parsed[0] : parsed;
+            } catch (e) {
+                console.error("Erro ao fazer parse do JSON:", e);
+                return;
+            }
+
+            const container = document.getElementById('directory-container');
+            const searchInput = document.getElementById('search');
+            const nav = document.getElementById('quick-nav');
+            const filterPanel = document.getElementById('filter-panel');
+            const filterOptions = document.getElementById('filter-options');
+            let activeFilter = 'all';
+            
+            // Renderização Inicial
+            renderFilteredContent(cabinetData);
+            renderFilterOptions();
+
+            function renderFilterOptions() {
+                const groups = ['all', ...new Set(cabinetData.map(section => section.group))];
+                filterOptions.innerHTML = '';
+
+                groups.forEach(group => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = `w-full text-left px-3 py-2 rounded-lg text-sm transition ${
+                        activeFilter === group
+                            ? 'bg-brand-gold text-brand-dark font-semibold'
+                            : 'text-white/80 hover:bg-white/5 hover:text-white'
+                    }`;
+                    button.textContent = group === 'all' ? 'Todos os setores' : group;
+                    button.addEventListener('click', () => {
+                        activeFilter = group;
+                        renderFilterOptions();
+                        searchInput.focus();
+                        applySearch();
+                    });
+                    filterOptions.appendChild(button);
+                });
+            }
+
+            function toggleFilterPanel(forceOpen = null) {
+                const shouldOpen = forceOpen !== null ? forceOpen : filterPanel.classList.contains('hidden');
+                filterPanel.classList.toggle('hidden', !shouldOpen);
+            }
+
+            searchInput.addEventListener('focus', () => toggleFilterPanel(true));
+            searchInput.addEventListener('click', () => toggleFilterPanel(true));
+
+            document.addEventListener('click', (event) => {
+                const isInSearchArea = searchInput.closest('.search-wrap')?.contains(event.target);
+                if (!isInSearchArea) {
+                    toggleFilterPanel(false);
+                }
+            });
+
+            function applySearch() {
+                const term = searchInput.value.trim().toLowerCase();
+                const filteredData = cabinetData
+                    .filter(section => activeFilter === 'all' || section.group === activeFilter)
+                    .map(section => ({
+                        ...section,
+                        entries: section.entries.filter(person => {
+                            return person.nome.toLowerCase().includes(term) ||
+                                   person.cargo.toLowerCase().includes(term) ||
+                                   person.uf.toLowerCase().includes(term);
+                        })
+                    }))
+                    .filter(section => section.entries.length > 0);
+
+                renderFilteredContent(filteredData, term);
+            }
+
+            // Input de Busca Dinâmica
+            searchInput.addEventListener('input', applySearch);
+
+            // Função principal de filtragem e renderização
+            function renderFilteredContent(data, term = "") {
+                container.innerHTML = ''; // Limpa container
+
+                if (data.length === 0 && term !== "") {
+                    container.innerHTML = `<div class="text-center py-20 text-brand-gold font-serif italic text-2xl">Nenhum contato encontrado para "${term}".</div>`;
+                    return;
+                }
+
+                data.forEach((section, index) => {
+                    const sectionEl = document.createElement('section');
+                    sectionEl.id = `section-${index}`;
+                    sectionEl.className = 'pt-10'; // padding top para âncoras
+
+                    const headerHtml = `
+                        <div class="flex items-center gap-4 mb-8 section-header">
+                            <div class="h-[2px] flex-grow bg-gradient-to-r from-transparent to-brand-gold/30"></div>
+                            <h2 class="font-serif text-2xl md:text-4xl font-semibold text-center text-white whitespace-nowrap">
+                                ${section.label}
+                            </h2>
+                            <div class="h-[2px] flex-grow bg-gradient-to-l from-transparent to-brand-gold/30"></div>
+                        </div>
+                    `;
+
+                    // Grid com columns dinâmicas
+                    const gridEl = document.createElement('div');
+                    gridEl.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6';
+
+                    // Injetar cards
+                    section.entries.forEach(person => {
+                        const cardHtml = `
+                            <div class="cargo font-mono text-[10.5px] tracking-[0.09em] uppercase text-brand-gold-bright/80 mb-2">${person.cargo}</div>
+                            <h3 class="nome font-sans font-semibold text-[15px] text-white leading-tight mb-4">${person.nome}</h3>
+                            
+                            <div class="meta mt-auto pt-3 border-t border-white/10 flex items-center justify-between gap-4 z-10">
+                                <span class="uf font-mono text-[11px] text-white/70 border border-white/10 rounded-[6px] px-2.5 py-1 z-10">
+                                    ${person.uf}
+                                </span>
+                                <a href="https://wa.me/${person.wa}" target="_blank" 
+                                   class="wa-link flex items-center gap-2 text-brand-gold/80 hover:text-brand-gold transition z-10">
+                                    <i class="ph-fill ph-whatsapp-logo text-xl"></i>
+                                    <span class="font-mono text-[12px] text-white/90 group-hover:text-brand-gold">${person.telefone}</span>
+                                </a>
+                            </div>
+                        `;
+                        const card = document.createElement('div');
+                        card.className = 'glass-card rounded-[14px] p-6 flex flex-col hover:-translate-y-2 transition-transform duration-300 member-card';
+                        card.innerHTML = cardHtml;
+                        gridEl.appendChild(card);
+                    });
+
+                    sectionEl.innerHTML = headerHtml;
+                    sectionEl.appendChild(gridEl);
+                    container.appendChild(sectionEl);
+                });
+
+                // Reiniciar animações após nova renderização
+                setTimeout(initAnimations, 100);
+            }
+
+            // 2. ANIMAÇÕES (GSAP & Anime.js)
+            function initAnimations() {
+                gsap.registerPlugin(ScrollTrigger);
+
+                // Limpar animações antigas se houver
+                ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+
+                // Scroll Trigger para seções e cards
+                gsap.utils.toArray('section').forEach(section => {
+                    const header = section.querySelector('.section-header');
+                    const cards = section.querySelectorAll('.member-card');
+
+                    // Animar Título
+                    gsap.from(header, {
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 80%",
+                        },
+                        y: 30,
+                        opacity: 0,
+                        duration: 0.8,
+                        ease: "power2.out"
+                    });
+
+                    // Animar Cards (Stagger)
+                    gsap.from(cards, {
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 75%",
+                        },
+                        y: 40,
+                        opacity: 0,
+                        duration: 0.6,
+                        stagger: 0.1,
+                        ease: "back.out(1.2)"
+                    });
+                });
+
+                // Anime.js para efeito nos links do WhatsApp
+                document.querySelectorAll('.wa-link').forEach(link => {
+                    link.addEventListener('mouseenter', () => {
+                        anime({
+                            targets: link.querySelector('i'),
+                            scale: [1, 1.25, 1],
+                            rotate: [0, -15, 15, 0],
+                            duration: 700,
+                            easing: 'easeInOutSine'
+                        });
+                    });
+                });
+
+                // Smooth scroll para navegação rápida
+                document.querySelectorAll('#quick-nav a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        document.querySelector(this.getAttribute('href')).scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    });
+                });
+            }
+
+            // Inicial Hero Animation
+            gsap.from(".hero-content > *", {
+                y: 50,
+                opacity: 0,
+                duration: 1.2,
+                stagger: 0.2,
+                ease: "power3.out",
+                delay: 0.3
+            });
+
+            // 3. BACKGROUND THREE.JS
+            function initThreeJS() {
+                const container = document.getElementById('canvas-container');
+                const scene = new THREE.Scene();
+                
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 50;
+
+                const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+                container.appendChild(renderer.domElement);
+
+                // Geometria (Particles)
+                const pointsGeometry = new THREE.BufferGeometry();
+                const particlesCount = window.innerWidth < 768 ? 500 : 1200;
+                const posArray = new Float32Array(particlesCount * 3);
+
+                for(let i = 0; i < particlesCount * 3; i++) {
+                    posArray[i] = (Math.random() - 0.5) * 120;
+                }
+
+                pointsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+                const material = new THREE.PointsMaterial({
+                    size: 0.2,
+                    color: 0xc9a13b, // Gold
+                    transparent: true,
+                    opacity: 0.4,
+                    blending: THREE.AdditiveBlending
+                });
+
+                const particlesMesh = new THREE.Points(pointsGeometry, material);
+                scene.add(particlesMesh);
+
+                // Mouse Interactivity
+                let mouseX = 0;
+                let mouseY = 0;
+
+                document.addEventListener('mousemove', (event) => {
+                    mouseX = event.clientX / window.innerWidth - 0.5;
+                    mouseY = event.clientY / window.innerHeight - 0.5;
+                });
+
+                // Animation loop
+                const clock = new THREE.Clock();
+                function animate() {
+                    requestAnimationFrame(animate);
+                    const elapsedTime = clock.getElapsedTime();
+
+                    particlesMesh.rotation.y = elapsedTime * 0.05;
+                    particlesMesh.rotation.x = elapsedTime * 0.02;
+
+                    // Reação suave ao mouse
+                    particlesMesh.rotation.y += mouseX * 0.1;
+                    particlesMesh.rotation.x += mouseY * 0.1;
+
+                    renderer.render(scene, camera);
+                }
+                animate();
+
+                // Resize handler
+                window.addEventListener('resize', () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
+
+            // Iniciar ThreeJS
+            initThreeJS();
+
+        });
+    </script>
+</body>
+</html>
