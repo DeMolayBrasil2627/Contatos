@@ -62,6 +62,7 @@ Todos os contatos e seções do sistema estão centralizados em formato JSON no 
 5. `"Coordenação CRNs"` (Comissões Regionais Nacionais)
 6. `"Coordenações de Campanhas"` (Campanhas e Prêmios Nacionais)
 7. `"MCEs e MCEAs"` (Lideranças Estaduais — Mestres Conselheiros Estaduais e Adjuntos)
+8. `"Supremo Conselho"` (Oficiais adultos do Supremo Conselho que atuam como pontos de contato do Gabinete)
 
 ---
 
@@ -75,6 +76,7 @@ Todos os contatos e seções do sistema estão centralizados em formato JSON no 
   "wa": "55DD9XXXXXXXX",
   "cid": "XXX.XXX",
   "coordena": "Estado ou Regiões sob sua coordenação",
+  "orgao": "Órgão de vínculo fora do Gabinete (ex: Supremo Conselho)",
   "atividades": [
     "Projeto ou Responsabilidade 1",
     "Projeto ou Responsabilidade 2"
@@ -93,6 +95,7 @@ Todos os contatos e seções do sistema estão centralizados em formato JSON no 
 | `cid` | `string` | Opcional | Identificador DeMolay com pontos (ex: `"111.210"`, `"80.748"`). Omita se desconhecido. |
 | `coordena` | `string` | Opcional | Jurisdição atribuída (ex: `"Acre (AC)"`, `"SP"`, `"MG e SC"`, `"Sudeste/Nordeste"`). |
 | `atividades` | `array` | Opcional | Lista de responsabilidades ou projetos sob coordenação do oficial. |
+| `orgao` | `string` | Opcional | Órgão de vínculo de quem **não** é do Gabinete Nacional (ex: `"Supremo Conselho"`). Exibe um selo azul-claro com ícone `ph-bank` abaixo do nome e entra na busca. Não use para membros do Gabinete. |
 
 ---
 
@@ -128,7 +131,7 @@ A função `applySearch()` no JavaScript já está programada para:
 * Tratar variações de plural e singular (`campanhas`/`campanha`, `coordenadores`/`coordenador`).
 * Suportar siglas institucionais (`cniec`, `cniep`, `cnier`, `cnieg`, `crnc`, `crnp`, `crnr`, `crng`, `snoc`, `snoe`).
 * Buscar CIDs com ou sem pontuação (`129065` localiza `CID 129.065`).
-* Buscar concorrentemente por: Nome, Cargo, UF, Jurisdição (`coordena`), CID e Projetos (`atividades`).
+* Buscar concorrentemente por: Nome, Cargo, UF, Jurisdição (`coordena`), CID, Projetos (`atividades`) e Órgão (`orgao`).
 * **Não quebre essa função.** Ela roda a cada digitação e no clique do `Enter`.
 
 ### 🛡️ REGRA 5: VALIDAÇÃO APÓS CADA EDIÇÃO
@@ -235,6 +238,7 @@ Para referência rápida ao editar o JSON em `index.html`:
 | **MCEs e MCEAs** | Mestres Conselheiros Estaduais — Centro-Oeste |
 | **MCEs e MCEAs** | Mestres Conselheiros Estaduais — Sudeste |
 | **MCEs e MCEAs** | Mestres Conselheiros Estaduais — Sul |
+| **Supremo Conselho** | Supremo Conselho — Pontos de Contato |
 
 ---
 
