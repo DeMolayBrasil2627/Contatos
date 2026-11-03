@@ -76,4 +76,5 @@ O algoritmo de pesquisa (`applySearch`) foi ampliado para ir além da filtragem 
 | **Badges de Atividades** | Exibição visual granular de projetos e tarefas por oficial. |
 | **Tratamento "Aguardando dados"** | Fallback visual para membros com cadastros em processo de preenchimento. |
 | **Exibição Imediata de Busca** | Renderização sem bloqueio de opacidade por rolagem para resultados instantâneos. |
+| **Selo de Órgão (`orgao`)** | Identifica visualmente oficiais de fora do Gabinete (ex: Supremo Conselho) e permite buscá-los pelo órgão. |
 

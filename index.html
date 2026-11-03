@@ -2465,6 +2465,26 @@
           "coordena": "Santa Catarina (SC)"
         }
       ]
+    },
+    {
+      "sheet": "Supremo Conselho",
+      "label": "Supremo Conselho — Pontos de Contato",
+      "group": "Supremo Conselho",
+      "entries": [
+        {
+          "nome": "LUCAS LEISTNER LONGATTO",
+          "cargo": "GESTOR",
+          "orgao": "Supremo Conselho",
+          "uf": "SP",
+          "telefone": "19 99961-5205",
+          "wa": "5519999615205",
+          "cid": "102.889",
+          "atividades": [
+            "Gestor do Programa Nacional de Barras de Mérito",
+            "Membro da Comissão Nacional de Educação"
+          ]
+        }
+      ]
     }
   ]
 ]
@@ -2637,13 +2657,14 @@
                                 const cidStr = person.cid ? String(person.cid) : '';
                                 const cidDigits = person.cid ? String(person.cid).replace(/\D/g, '') : '';
                                 const normCoord = normalizeStr(person.coordena || '');
+                                const normOrgao = normalizeStr(person.orgao || '');
                                 const normAtiv = person.atividades ? (
                                     Array.isArray(person.atividades) 
                                         ? person.atividades.map(normalizeStr).join(' ')
                                         : normalizeStr(person.atividades)
                                 ) : '';
 
-                                const combinedText = `${normNome} ${normCargo} ${normUf} ${normCoord} ${normAtiv}`;
+                                const combinedText = `${normNome} ${normCargo} ${normUf} ${normCoord} ${normAtiv} ${normOrgao}`;
                                 const words = combinedText.split(/[^a-z0-9]+/);
 
                                 return tokens.every(token => {
@@ -2729,6 +2750,13 @@
                                 ${person.cid ? `<div class="cid font-mono text-[9.5px] sm:text-[10px] text-brand-gold/80 bg-brand-gold/10 px-2 py-0.5 rounded border border-brand-gold/20" title="CID">CID ${person.cid}</div>` : ''}
                             </div>
                             <h3 class="nome font-sans font-semibold text-sm sm:text-[15px] text-white leading-tight mb-2 break-words">${person.nome}</h3>
+                            ${person.orgao ? `
+                            <div class="orgao mb-2 -mt-0.5">
+                                <span class="inline-flex items-center gap-1 font-mono text-[9.5px] sm:text-[10px] font-semibold uppercase tracking-wider text-sky-200 bg-sky-400/10 border border-sky-300/40 px-2 py-0.5 rounded-full" title="Órgão de vínculo">
+                                    <i class="ph-bold ph-bank text-[11px]"></i>${person.orgao}
+                                </span>
+                            </div>
+                            ` : ''}
                             ${person.coordena ? `
                             <div class="coordena mb-3 mt-1">
                                 <span class="text-brand-gold/70 font-mono text-[9px] uppercase tracking-wider block mb-0.5">Coordena:</span>
